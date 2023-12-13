@@ -5,7 +5,7 @@ const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "Brazil1love$",
+    password: "code1994",
     database: "employeeTracker_db",
 });
 
@@ -128,7 +128,6 @@ function addDepartment() {
             connection.query(query, (err, res) => {
                 if (err) throw err;
                 console.log(`Added department ${answer.name} to the database!`);
-                // restart the application
                 start();
                 console.log(answer.name);
             });
@@ -177,7 +176,6 @@ function addRole() {
                         console.log(
                             `Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department in the database!`
                         );
-                        // restart the application
                         start();
                     }
                 );
@@ -186,7 +184,6 @@ function addRole() {
 }
 
 function addEmployee() {
-    // Retrieve list of roles from the database
     connection.query("SELECT id, title FROM roles", (error, results) => {
         if (error) {
             console.error(error);
@@ -197,8 +194,6 @@ function addEmployee() {
             name: title,
             value: id,
         }));
-
-        // Retrieve list of employees from the database to use as managers
         connection.query(
             'SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employee',
             (error, results) => {
@@ -240,7 +235,6 @@ function addEmployee() {
                         },
                     ])
                     .then((answers) => {
-                        // Insert the employee into the database
                         const sql =
                             "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
                         const values = [
@@ -328,7 +322,6 @@ function addManager() {
                             console.log(
                                 `Added manager ${manager.first_name} ${manager.last_name} to employee ${employee.first_name} ${employee.last_name} in department ${department.department_name}!`
                             );
-                            // restart the application
                             start();
                         }
                     );
@@ -382,7 +375,6 @@ function updateEmployeeRole() {
                             console.log(
                                 `Updated ${employee.first_name} ${employee.last_name}'s role to ${role.title} in the database!`
                             );
-                            // restart the application
                             start();
                         }
                     );
@@ -413,7 +405,6 @@ function viewEmployeesByManager() {
     connection.query(query, (err, res) => {
         if (err) throw err;
 
-        // group employees by manager
         const employeesByManager = res.reduce((acc, cur) => {
             const managerName = cur.manager_name;
             if (acc[managerName]) {
@@ -424,7 +415,6 @@ function viewEmployeesByManager() {
             return acc;
         }, {});
 
-        // display employees by manager
         console.log("Employees by manager:");
         for (const managerName in employeesByManager) {
             console.log(`\n${managerName}:`);
@@ -438,7 +428,6 @@ function viewEmployeesByManager() {
         start();
     });
 }
-// Function to view Employees by Department
 function viewEmployeesByDepartment() {
     const query =
         "SELECT departments.department_name, employee.first_name, employee.last_name FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN departments ON roles.department_id = departments.id ORDER BY departments.department_name ASC";
@@ -447,7 +436,6 @@ function viewEmployeesByDepartment() {
         if (err) throw err;
         console.log("\nEmployees by department:");
         console.table(res);
-        // restart the application
         start();
     });
 }
@@ -487,7 +475,7 @@ function deleteEmployee() {
             name: `${employee.first_name} ${employee.last_name}`,
             value: employee.id,
         }));
-        employeeList.push({ name: "Go Back", value: "back" }); // add a "back" option
+        employeeList.push({ name: "Go Back", value: "back" }); 
         inquirer
             .prompt({
                 type: "list",
@@ -497,7 +485,6 @@ function deleteEmployee() {
             })
             .then((answer) => {
                 if (answer.id === "back") {
-                    // check if user selected "back"
                     deleteDepartmentsRolesEmployees();
                     return;
                 }
@@ -508,7 +495,6 @@ function deleteEmployee() {
                         `Deleted employee with ID ${answer.id} from the database!`
                         
                     );
-                    // restart the application
                     start();
                 });
             });
@@ -516,16 +502,13 @@ function deleteEmployee() {
 }
 
 function deleteRole() {
-    // retrieve all available roles from the database
     const query = "SELECT * FROM roles";
     connection.query(query, (err, res) => {
         if (err) throw err;
-        // map through the retrieved roles to create an array of choices
         const choices = res.map((role) => ({
             name: `${role.title} (${role.id}) - ${role.salary}`,
             value: role.id,
         }));
-        // add a "Go Back" option to the list of choices
         choices.push({ name: "Go Back", value: null });
         inquirer
             .prompt({
@@ -535,9 +518,7 @@ function deleteRole() {
                 choices: choices,
             })
             .then((answer) => {
-                // check if the user chose the "Go Back" option
                 if (answer.roleId === null) {
-                    // go back to the deleteDepartmentsRolesEmployees function
                     deleteDepartmentsRolesEmployees();
                     return;
                 }
@@ -554,7 +535,6 @@ function deleteRole() {
 }
 
 function deleteDepartment() {
-    // get the list of departments
     const query = "SELECT * FROM departments";
     connection.query(query, (err, res) => {
         if (err) throw err;
@@ -563,7 +543,6 @@ function deleteDepartment() {
             value: department.id,
         }));
 
-        // prompt the user to select a department
         inquirer
             .prompt({
                 type: "list",
@@ -576,7 +555,6 @@ function deleteDepartment() {
             })
             .then((answer) => {
                 if (answer.departmentId === "back") {
-                    // go back to the previous menu
                     deleteDepartmentsRolesEmployees();
                 } else {
                     const query = "DELETE FROM departments WHERE id = ?";
@@ -588,7 +566,6 @@ function deleteDepartment() {
                             console.log(
                                 `Deleted department with ID ${answer.departmentId} from the database!`
                             );
-                            // restart the application
                             start();
                         }
                     );
@@ -606,7 +583,6 @@ function viewTotalUtilizedBudgetOfDepartment() {
             value: department.id,
         }));
 
-        // prompt the user to select a department
         inquirer
             .prompt({
                 type: "list",
@@ -616,7 +592,6 @@ function viewTotalUtilizedBudgetOfDepartment() {
                 choices: departmentChoices,
             })
             .then((answer) => {
-                // calculate the total salary for the selected department
                 const query =
                     `SELECT 
                     departments.department_name AS department,
@@ -635,7 +610,6 @@ function viewTotalUtilizedBudgetOfDepartment() {
                     console.log(
                         `The total salary for employees in this department is $${totalSalary}`
                     );
-                    // restart the application
                     start();
                 });
             });
